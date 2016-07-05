@@ -1,0 +1,109 @@
+<div class="row">
+  <div id="form" class="col-md-6 col-md-offset-3 fido-actions">
+    <p>
+      <button id="register" class="btn btn-primary" type="submit">Register</button>
+      <button id="verify" class="btn btn-success" type="submit">Verify</button>
+    </p>
+    <p id="status">
+    </p>
+  </div>
+</div>
+<script>
+  var factorId;
+
+  $(function() {
+
+    $('#register').click(function() {
+      $.post({
+        url: '/factors',
+        contentType: 'application/json',
+        dataType : 'json',
+        data: JSON.stringify({
+          factorType: 'U2F',
+          provider: 'FIDO'
+        })
+      })
+      .done(function(enrollRes, textStatus, req) {
+        $('#status')
+          .addClass('bg-primary')
+          .text('Press your security key to complete registration');
+        u2f.register(
+          enrollRes._embedded.activation.appId,
+          [
+            {
+              version: enrollRes._embedded.activation.version,
+              challenge: enrollRes._embedded.activation.challenge
+            }
+          ],
+          [],
+          function(regRes) {
+            console.log('RegisterResponse: %o', regRes);
+            if (regRes.errorCode) {
+              $('#status')
+                .removeClass('bg-primary')
+                .addClass('bg-danger')
+                .text('Unable to register your security key (ErrorCode: ' + regRes.errorCode + ')');
+            } else {
+              $.post({
+                url: '/factors/' + enrollRes.id + '/lifecycle/activate',
+                contentType: 'application/json',
+                dataType : 'json',
+                data: JSON.stringify(regRes)
+              }).done(function(activateRes, textStatus, req) {
+                $('#status')
+                  .removeClass('bg-danger')
+                  .removeClass('bg-primary')
+                  .html('<pre><code class="js">' +
+                    JSON.stringify(activateRes) +
+                    '</code></pre>');
+                $('#status pre code').each(function(i, block) {
+                  hljs.highlightBlock(block);
+                });
+                factorId = activateRes.id;
+              });
+            }
+          }
+        );
+      });
+    })
+
+
+    $('#verify').click(function() {
+      $.post({
+        url: '/factor/' + factorId + '/verify'
+      })
+      .done(function(challengeRes, textStatus, challengeReq) {
+        console.log('Challenge: %o', challengeRes);
+        $('#status')
+          .addClass('bg-primary')
+          .removeClass('bg-danger')
+          .html('Press your security key to verify transaction');
+        u2f.sign(
+          challengeRes.appId,
+          challengeRes.challenge,
+          challengeRes.registeredKeys,
+          function(signRes) {
+            console.log('SignResponse: %o', signRes);
+            $.post({
+              url: challengeReq.getResponseHeader('Location'),
+              contentType: 'application/json',
+              dataType : 'json',
+              data: JSON.stringify(signRes)
+            }).done(function(verifyRes) {
+              $('#status')
+                .removeClass('bg-danger')
+                .removeClass('bg-primary')
+                .html('<pre><code class="js">' +
+                  JSON.stringify(verifyRes) +
+                  '</code></pre>');
+              $('#status pre code').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            })
+          }
+        );
+      })
+    });
+
+  });
+</script>

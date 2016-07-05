@@ -1,0 +1,22 @@
+{
+  "name": "u2f-sample",
+  "description": "Sample U2F Server",
+  "main": "server.js",
+  "authors": [
+    "Karl McGuinness"
+  ],
+  "license": "ISC",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.0.0",
+    "u2f-api": "~0.4.1"
+  }
+}

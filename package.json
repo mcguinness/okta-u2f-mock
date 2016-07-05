@@ -1,0 +1,22 @@
+{
+  "name": "u2f-sample",
+  "version": "1.0.0",
+  "description": "Sample U2F Server",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Karl McGuinness",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.14.0",
+    "express-session": "^1.13.0",
+    "hbs": "^4.0.0",
+    "morgan": "^1.7.0",
+    "u2f": "^0.1.2",
+    "x509": "^0.2.6",
+    "yargs": "^4.7.1"
+  }
+}
