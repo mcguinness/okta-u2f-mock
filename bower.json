@@ -17,6 +17,7 @@
   ],
   "dependencies": {
     "jquery": "^3.0.0",
-    "u2f-api": "~0.4.1"
+    "u2f-api": "~0.4.1",
+    "highlight": "^9.5.0"
   }
 }
